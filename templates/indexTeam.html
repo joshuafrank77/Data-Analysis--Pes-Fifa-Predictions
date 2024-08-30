@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Prediction</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .flag-icon {
+            width: 20px;
+            height: 15px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Predict Team</h1>
+        <form action="/predict_team" method="post">
+            <div class="form-group">
+                <label for="confederation">Confederation:</label>
+                <select id="confederation" name="confederation" class="form-control">
+                    <option value="">Select Confederation</option>
+                    <option value="UEFA">UEFA</option>
+                    <option value="AFC">AFC</option>
+                    <option value="CAF">CAF</option>
+                    <option value="CONCACAF">CONCACAF</option>
+                    <option value="CONMEBOL">CONMEBOL</option>
+                    <option value="OFC">OFC</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="club-country">Club Country:</label>
+                <select id="club-country" name="club-country" class="form-control">
+                    <option value="">Select Club Country</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="league">League:</label>
+                <select id="league" name="league" class="form-control">
+                    <option value="">Select League</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="club">Club:</label>
+                <select id="club" name="club" class="form-control">
+                    <option value="">Select Club</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="transfermarkt_url">Transfermarkt URL:</label>
+                <input type="text" id="transfermarkt_url" name="transfermarkt_url" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Predict</button>
+        </form>
+    </div>
+    <script>
+        $(document).ready(function() {
+            var countryFlags = {
+                'Afghanistan': 'https://flagcdn.com/w580/af.png','Albania': 'https://flagcdn.com/w580/al.png','Algeria': 'https://flagcdn.com/w580/dz.png','Andorra': 'https://flagcdn.com/w580/ad.png','Angola': 'https://flagcdn.com/w580/ao.png','Antigua and Barbuda': 'https://flagcdn.com/w580/ag.png','Argentina': 'https://flagcdn.com/w580/ar.png','Armenia': 'https://flagcdn.com/w580/am.png','Aruba': 'https://flagcdn.com/w580/aw.png','Australia': 'https://flagcdn.com/w580/au.png','Austria': 'https://flagcdn.com/w580/at.png','Azerbaijan': 'https://flagcdn.com/w580/az.png',
+                'Bangladesh': 'https://flagcdn.com/w580/bd.png','Bahrain':'https://flagpedia.net/data/flags/w580/bh.webp','Barbados': 'https://flagcdn.com/w580/bb.png','Belarus': 'https://flagcdn.com/w580/by.png','Belgium': 'https://flagcdn.com/w580/be.png','Benin': 'https://flagcdn.com/w580/bj.png','Bermuda': 'https://flagcdn.com/w580/bm.png','Bolivia': 'https://flagcdn.com/w580/bo.png',
+                'Bosnia-Herzegovina': 'https://flagcdn.com/w580/ba.png', 'Brazil': 'https://flagcdn.com/w580/br.png','Bulgaria': 'https://flagcdn.com/w580/bg.png','Burkina Faso': 'https://flagcdn.com/w580/bf.png','Burundi': 'https://flagcdn.com/w580/bi.png',
+                'Cameroon': 'https://flagcdn.com/w580/cm.png','Canada': 'https://flagcdn.com/w580/ca.png','Cape Verde': 'https://flagcdn.com/w580/cv.png','Central African Republic': 'https://flagcdn.com/w580/cf.png','Chad': 'https://flagcdn.com/w580/td.png','Chile': 'https://flagcdn.com/w580/cl.png','China': 'https://flagcdn.com/w580/cn.png','Colombia': 'https://flagcdn.com/w580/co.png','Comoros': 'https://flagcdn.com/w580/km.png','Congo': 'https://flagcdn.com/w580/cg.png','Costa Rica': 'https://flagcdn.com/w580/cr.png','Croatia': 'https://flagcdn.com/w580/hr.png','Cuba': 'https://flagcdn.com/w580/cu.png','Curacao': 'https://flagcdn.com/w580/cw.png','Cyprus': 'https://flagcdn.com/w580/cy.png','Czech Republic': 'https://flagcdn.com/w580/cz.png',
+                'Denmark': 'https://flagcdn.com/w580/dk.png','Dominica': 'https://flagcdn.com/w580/dm.png','Dominican Republic': 'https://flagcdn.com/w580/do.png',
+                'Ecuador': 'https://flagcdn.com/w580/ec.png','Egypt': 'https://flagcdn.com/w580/eg.png','El Salvador': 'https://flagcdn.com/w580/sv.png','England': 'https://flagcdn.com/w580/gb-eng.png','Equatorial Guinea': 'https://flagcdn.com/w580/gq.png','Eritrea': 'https://flagcdn.com/w580/er.png','Estonia': 'https://flagcdn.com/w580/ee.png','Ethiopia': 'https://flagcdn.com/w580/et.png',
+                'Faroe Islands': 'https://flagcdn.com/w580/fo.png','Fiji': 'https://flagcdn.com/w580/fj.png','Finland': 'https://flagcdn.com/w580/fi.png','France': 'https://flagcdn.com/w580/fr.png','French Guiana': 'https://flagcdn.com/w580/gf.png',
+                'Gabon': 'https://flagcdn.com/w580/ga.png','Georgia': 'https://flagcdn.com/w580/ge.png','Germany': 'https://flagcdn.com/w580/de.png','Ghana': 'https://flagcdn.com/w580/gh.png','Gibraltar': 'https://flagcdn.com/w580/gi.png','Greece': 'https://flagcdn.com/w580/gr.png','Grenada': 'https://flagcdn.com/w580/gd.png','Guadeloupe': 'https://flagcdn.com/w580/gp.png','Guatemala': 'https://flagcdn.com/w580/gt.png','Guernsey': 'https://flagcdn.com/w580/gg.png','Guinea': 'https://flagcdn.com/w580/gn.png','Guinea-Bissau': 'https://flagcdn.com/w580/gw.png','Guyana': 'https://flagcdn.com/w580/gy.png',
+                'Haiti': 'https://flagcdn.com/w580/ht.png','Honduras': 'https://flagcdn.com/w580/hn.png','Hungary': 'https://flagcdn.com/w580/hu.png',
+                'Iceland': 'https://flagcdn.com/w580/is.png','India': 'https://flagcdn.com/w580/in.png','Indonesia': 'https://flagcdn.com/w580/id.png','Iran': 'https://flagcdn.com/w580/ir.png','Iraq': 'https://flagcdn.com/w580/iq.png','Ireland': 'https://flagcdn.com/w580/ie.png','Isle of Man': 'https://flagcdn.com/w580/im.png','Israel': 'https://flagcdn.com/w580/il.png','Italy': 'https://flagcdn.com/w580/it.png',
+                'Jamaica': 'https://flagcdn.com/w580/jm.png','Japan': 'https://flagcdn.com/w580/jp.png','Jersey': 'https://flagcdn.com/w580/je.png','Jordan': 'https://flagcdn.com/w580/jo.png',
+                'Kazakhstan': 'https://flagcdn.com/w580/kz.png','Kenya': 'https://flagcdn.com/w580/ke.png','Kosovo': 'https://flagcdn.com/w580/xk.png','Kyrgyzstan': 'https://flagcdn.com/w580/kg.png',
+                'Latvia': 'https://flagcdn.com/w580/lv.png','Lebanon': 'https://flagcdn.com/w580/lb.png','Liberia': 'https://flagcdn.com/w580/lr.png','Libya': 'https://flagcdn.com/w580/ly.png','Lithuania': 'https://flagcdn.com/w580/lt.png','Luxembourg': 'https://flagcdn.com/w580/lu.png',
+                'Madagascar': 'https://flagcdn.com/w580/mg.png','Malawi': 'https://flagcdn.com/w580/mw.png','Malaysia': 'https://flagcdn.com/w580/my.png','Mali': 'https://flagcdn.com/w580/ml.png','Malta': 'https://flagcdn.com/w580/mt.png','Martinique': 'https://flagcdn.com/w580/mq.png','Mauritania': 'https://flagcdn.com/w580/mr.png','Mexico': 'https://flagcdn.com/w580/mx.png','Moldova': 'https://flagcdn.com/w580/md.png','Monaco': 'https://flagcdn.com/w580/mc.png','Montenegro': 'https://flagcdn.com/w580/me.png','Montserrat': 'https://flagcdn.com/w580/ms.png','Morocco': 'https://flagcdn.com/w580/ma.png','Mozambique': 'https://flagcdn.com/w580/mz.png',
+                'Namibia': 'https://flagcdn.com/w580/na.png','Nepal': 'https://flagcdn.com/w580/np.png','Netherlands': 'https://flagcdn.com/w580/nl.png','New Zealand': 'https://flagcdn.com/w580/nz.png','Nicaragua': 'https://flagcdn.com/w580/ni.png','Nigeria': 'https://flagcdn.com/w580/ng.png','North Macedonia': 'https://flagcdn.com/w580/mk.png','Northern Ireland': 'https://flagcdn.com/w580/gb-nir.png','Norway': 'https://flagcdn.com/w580/no.png',
+                'Pakistan': 'https://flagcdn.com/w580/pk.png','Palestine': 'https://flagcdn.com/w580/ps.png','Panama': 'https://flagcdn.com/w580/pa.png','Paraguay': 'https://flagcdn.com/w580/py.png','Peru': 'https://flagcdn.com/w580/pe.png','Philippines': 'https://flagcdn.com/w580/ph.png','Poland': 'https://flagcdn.com/w580/pl.png','Portugal': 'https://flagcdn.com/w580/pt.png','Puerto Rico': 'https://flagcdn.com/w580/pr.png',
+                'Réunion': 'https://flagcdn.com/w580/re.png','Romania': 'https://flagcdn.com/w580/ro.png','Russia': 'https://flagcdn.com/w580/ru.png','Rwanda': 'https://flagcdn.com/w580/rw.png',
+                'Samoa': 'https://flagcdn.com/w580/ws.png','San Marino':'https://flagpedia.net/data/flags/w580/sm.webp','Sao Tome and Principe': 'https://flagcdn.com/w580/st.png','Saudi Arabia': 'https://flagcdn.com/w580/sa.png','Scotland': 'https://flagcdn.com/w580/gb-sct.png','Senegal': 'https://flagcdn.com/w580/sn.png','Serbia': 'https://flagcdn.com/w580/rs.png','Sierra Leone': 'https://flagcdn.com/w580/sl.png','Singapore': 'https://flagcdn.com/w580/sg.png','Slovakia': 'https://flagcdn.com/w580/sk.png','Slovenia': 'https://flagcdn.com/w580/si.png','Somalia': 'https://flagcdn.com/w580/so.png','South Africa': 'https://flagcdn.com/w580/za.png','Spain': 'https://flagcdn.com/w580/es.png','Sri Lanka': 'https://flagcdn.com/w580/lk.png','St. Kitts & Nevis': 'https://flagcdn.com/w580/kn.png','St. Lucia': 'https://flagcdn.com/w580/lc.png','Sudan': 'https://flagcdn.com/w580/sd.png','Suriname': 'https://flagcdn.com/w580/sr.png','Sweden': 'https://flagcdn.com/w580/se.png','Switzerland': 'https://flagcdn.com/w580/ch.png','Syria': 'https://flagcdn.com/w580/sy.png',
+                'Tajikistan': 'https://flagcdn.com/w580/tj.png','Tanzania': 'https://flagcdn.com/w580/tz.png','Thailand': 'https://flagcdn.com/w580/th.png','Togo': 'https://flagcdn.com/w580/tg.png','Trinidad and Tobago': 'https://flagcdn.com/w580/tt.png','Tunisia': 'https://flagcdn.com/w580/tn.png',
+                'Uganda': 'https://flagcdn.com/w580/ug.png','Ukraine': 'https://flagcdn.com/w580/ua.png','United Arab Emirates': 'https://flagcdn.com/w580/ae.png','United Kingdom': 'https://flagcdn.com/w580/gb.png','United States': 'https://flagcdn.com/w580/us.png','Uruguay': 'https://flagcdn.com/w580/uy.png','Uzbekistan': 'https://flagcdn.com/w580/uz.png',
+                'Vanuatu': 'https://flagcdn.com/w580/vu.png','Venezuela': 'https://flagcdn.com/w580/ve.png','Vietnam': 'https://flagcdn.com/w580/vn.png',
+                'Wales': 'https://flagcdn.com/w580/gb-wls.png',
+                'Yemen': 'https://flagcdn.com/w580/ye.png',
+                'Zambia': 'https://flagcdn.com/w580/zm.png','Zimbabwe': 'https://flagcdn.com/w580/zw.png',
+                'Chinese Taipei': 'https://flagcdn.com/w580/tw.png',  // Chinese Taipei (Taiwan)
+                'St. Vincent & Grenadinen': 'https://flagcdn.com/w580/vc.png',  // St. Vincent and the Grenadines
+                'The Gambia': 'https://flagcdn.com/w580/gm.png',  // Gambia
+                'Türkiye': 'https://flagcdn.com/w580/tr.png',  // Turkey
+                'Neukaledonien': 'https://flagcdn.com/w580/nc.png',  // New Caledonia
+                'Southern Sudan': 'https://flagcdn.com/w580/ss.png',  // South Sudan
+                'Hongkong': 'https://flagcdn.com/w580/hk.png',  // Hong Kong
+                'Korea, South': 'https://flagcdn.com/w580/kr.png',  // South Korea
+                'Timor-Leste': 'https://flagcdn.com/w580/tl.png',  // Timor-Leste
+                'DR Congo': 'https://flagcdn.com/w580/cd.png',  // Democratic Republic of the Congo
+                'Cote d\'Ivoire': 'https://flagcdn.com/w580/ci.png',  // Ivory Coast
+                'Cookinseln': 'https://flagcdn.com/w580/ck.png',  // Cook Islands
+                'Bonaire': 'https://flagcdn.com/w580/bq-bo.png',  // Bonaire
+                'Bhutan':'https://flagpedia.net/data/flags/w580/bt.webp',
+                'Brunei Darussalam':'https://flagpedia.net/data/flags/w580/bn.webp',
+                'Cambodia':'https://flagpedia.net/data/flags/w580/kh.webp',
+                'Guam':'https://flagpedia.net/data/flags/w580/gu.webp',
+                'Kuwait': 'https://flagpedia.net/data/flags/w580/kw.webp',
+                'Laos':'https://flagpedia.net/data/flags/w580/la.webp',
+                'Macao':'https://flagpedia.net/data/flags/w580/mo.webp',
+                'Maldives':'https://flagpedia.net/data/flags/w580/mv.webp',
+                'Mongolia':'https://flagpedia.net/data/flags/w580/mn.webp',
+                'Myanmar':'https://flagpedia.net/data/flags/w580/mm.webp',
+                'Oman':'https://flagpedia.net/data/flags/w580/om.webp',
+                'Qatar':'https://flagpedia.net/data/flags/w580/qa.webp',
+                'Turkmenistan':'https://flagpedia.net/data/flags/w580/tm.webp',
+                'Botsuana':'https://flagpedia.net/data/flags/w580/bw.webp',
+                'Djibouti':'https://flagpedia.net/data/flags/w580/dj.webp',
+                'Eswatini':'https://flagpedia.net/data/flags/w580/sz.webp',
+                'Lesotho':'https://flagpedia.net/data/flags/w580/ls.webp',
+                'Mauritius':'https://flagpedia.net/data/flags/w580/mu.webp',
+                'Niger':'https://flagpedia.net/data/flags/w580/ne.webp',
+                'Belize': 'https://flagpedia.net/data/flags/w580/bz.webp',
+                'British Virgin Islands':'https://flagpedia.net/data/flags/w580/vg.webp',
+                'Cayman Islands': 'https://flagpedia.net/data/flags/w580/ky.webp',
+                'Turks- and Caicosinseln':'https://flagpedia.net/data/flags/w580/tc.webp',
+                'Papua New Guinea':'https://flagpedia.net/data/flags/w580/pg.webp',
+                'Solomon Islands':'https://flagpedia.net/data/flags/w580/sb.webp',
+                'Liechtenstein' :'https://flagpedia.net/data/flags/w580/li.webp',
+                'Tahiti': 'https://flagpedia.net/data/flags/w580/pf.webp'
+                
+            };
+            var countriesByConfederation = {
+                'UEFA': ['England','Italy','Germany','Spain','France','Belgium','Portugal','Denmark','Russia','Switzerland','Netherlands','Türkiye','Austria','Croatia','Poland','Norway','Sweden','Cyprus','Czech Republic','Israel','Hungary','Greece','Romania','Scotland','Slovenia','Ukraine','Azerbaijan','Slovakia','Bulgaria','Serbia','Bosnia-Herzegovina','Kazakhstan','Finland','Georgia','Albania','Belarus','Armenia','Ireland','Iceland','Kosovo','North Macedonia','Moldova','Lithuania','Latvia','Malta','Luxembourg','Montenegro','Faroe Islands','Northern Ireland','Estonia','Andorra','Gibraltar','San Marino'],
+                'AFC': ['Japan', 'Saudi Arabia', 'Australia', 'Iran', 'United Arab Emirates', 'Iraq', 'China', 'Uzbekistan', 'Kuwait', 'Jordan', 'Thailand', 'Bahrain', 'Syria', 'Qatar', 'Oman', 'Malaysia', 'Vietnam', 'Indonesia', 'Palestine', 'Lebanon', 'India', 'Nepal', 'Singapore', 'Hongkong', 'Yemen', 'Turkmenistan', 'Philippines', 'Tajikistan', 'Kyrgyzstan', 'Myanmar', 'Cambodia', 'Chinese Taipei', 'Bangladesh', 'Maldives', 'Mongolia', 'Macao', 'Brunei Darussalam', 'Guam', 'Armenia', 'Laos', 'Bhutan'],
+                'CAF': ['Algeria', 'Egypt', 'South Africa', 'Tunisia', 'Ghana', 'Nigeria', 'Zambia', 'Cote d\'Ivoire', 'Senegal', 'Réunion', 'Mali', 'Tanzania', 'Zimbabwe', 'Mozambique', 'Libya', 'Angola', 'Burkina Faso', 'Togo', 'Guinea', 'Uganda', 'Ethiopia', 'DR Congo', 'Kenya', 'Cape Verde', 'Congo', 'Mauritania', 'Cameroon', 'The Gambia', 'Burundi', 'Rwanda', 'Madagascar', 'Botsuana', 'Eswatini', 'Benin', 'Lesotho', 'Malawi', 'Mauritius', 'Liberia', 'Sao Tome and Principe', 'Sierra Leone', 'Niger', 'Somalia'],
+                'CONCACAF': ['United States', 'Mexico', 'Costa Rica', 'Panama', 'Guatemala', 'Honduras', 'El Salvador', 'Jamaica', 'Canada', 'Nicaragua', 'Dominican Republic', 'Grenada', 'Haiti', 'Suriname', 'Antigua and Barbuda', 'French Guiana', 'Martinique', 'Puerto Rico', 'Aruba', 'St. Kitts & Nevis', 'British Virgin Islands', 'Trinidad and Tobago', 'Guadeloupe', 'Turks- and Caicosinseln', 'Belize', 'Curacao', 'Cayman Islands', 'Cuba', 'Bermuda', 'Guyana', 'Barbados'],
+                'CONMEBOL': ['Brazil', 'Argentina', 'Ecuador', 'Colombia', 'Paraguay', 'Chile', 'Uruguay', 'Bolivia', 'Peru', 'Venezuela'],
+                'OFC': ['New Zealand', 'Neukaledonien', 'Fiji', 'Papua New Guinea', 'Solomon Islands', 'Cookinseln','Tahiti']
+            };
+            // Sort the countries within each confederation alphabetically
+            for (var confederation in countriesByConfederation) {
+                if (countriesByConfederation.hasOwnProperty(confederation)) {
+                    countriesByConfederation[confederation].sort();
+                }
+            }
+
+            function formatCountry(country) {
+                if (!country.id) {
+                    return country.text;
+                }
+                var flagUrl = countryFlags[country.id] || '';
+                if (flagUrl) {
+                    return $('<span><img src="' + flagUrl + '" class="flag-icon" /> ' + country.text + '</span>');
+                }
+                return country.text;
+            }
+
+            function formatClub(club) {
+                if (!club.id) {
+                    return club.text;
+                }
+                var shieldUrl = `https://cdn.sportfeeds.io/sdl/images/team/crest/medium/${club.id}.png`;
+                return $('<span><img src="' + shieldUrl + '" class="flag-icon" /> ' + club.text + '</span>');
+            }
+
+            $('#confederation').change(function () {
+                var confederation = $(this).val();
+                var countryOptions = countriesByConfederation[confederation];
+                $('#club-country').empty().append('<option value="">Select Country</option>');
+                if (countryOptions) {
+                    for (var i = 0; i < countryOptions.length; i++) {
+                        var country = countryOptions[i];
+                        $('#club-country').append('<option value="' + country + '">' + country + '</option>');
+                    }
+                    $('#club-country').select2({
+                        templateResult: formatCountry,
+                        templateSelection: formatCountry
+                    });
+                }
+            });
+
+            $('#club-country').change(function () {
+                var country = $(this).val();
+                $.getJSON('/get_leagues', function (data) {
+                    var leagues = data.leagues[country] || [];
+                    $('#league').empty().append('<option value="">Select League</option>');
+                    leagues.forEach(function (league) {
+                        $('#league').append('<option value="' + league + '">' + league + '</option>');
+                    });
+                });
+            });
+
+            $('#league').change(function() {
+                var league = $(this).val();
+                $.getJSON('/get_clubs/' + encodeURIComponent(league), function(data) {
+                    var clubs = data.clubs;
+                    if (clubs.length === 0) {
+                        alert("Club data not found for league: " + league);
+                        return;
+                    }
+                    clubs.sort(function(a, b) {
+                        return a.contestantName.localeCompare(b.contestantName);
+                    });
+                    $('#club').empty().append('<option value="">Select Club</option>');
+                    clubs.forEach(function(club) {
+                        $('#club').append('<option value="' + club.contestantId + '">' + club.contestantName + '</option>');
+                    });
+                    $('#club').select2({
+                        templateResult: formatClub,
+                        templateSelection: formatClub
+                    });
+                }).fail(function() {
+                    alert("Error fetching club data for league: " + league);
+                });
+            });
+
+            $('#club').select2();
+        });
+    </script>
+</body>
+</html>

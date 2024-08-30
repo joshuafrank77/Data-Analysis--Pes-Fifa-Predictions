@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Prediction Results</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        @font-face {
+            font-family: 'eFootball22-stencil-card';
+            src: url('/static/fonts/eFootballStencil-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'eFootball22-sans-card';
+            src: url('/static/fonts/eFootballSans-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 0 auto;
+            padding: 20px;
+            max-width: 100%;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+            margin: 10px;
+        }
+
+        .card-container {
+            position: relative;
+            width: 260px;
+            height: 390px;
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card-container.flip .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background-size: cover;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .card-front {
+            background-image: url('/static/background1.png');
+        }
+
+        .background2 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/background2.png');
+            background-size: cover;
+            z-index: 1;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .player-info {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            z-index: 2;
+        }
+
+        .player-info h2 {
+            margin: 0;
+            font-size: 44px;
+            font-weight: 300;
+            font-family: 'eFootball22-stencil-card';
+            text-shadow: 0.1px 0.1px 3px black;
+            position: relative;
+        }
+
+        .player-info .position {
+            font-size: 37px;
+            margin: 10px 0;
+            font-weight: 300;
+            font-family: 'eFootball22-stencil-card';
+            text-shadow: 0.1px 0.1px 3px black;
+            position: relative;
+        }
+
+        .player-info .team-shield {
+            width: 66px;
+            height: 66px;
+            display: block;
+            margin: 10px auto;
+            position: relative;
+            left: -px;
+        }
+
+        .flag-image {
+            width: 46px;
+            height: 33px;
+            display: block;
+            margin: 10px auto;
+            position: relative;
+            left: 0px;
+        }
+
+        .player-image {
+            position: absolute;
+            top: 50%;
+            right: 10%;
+            transform: translateY(-50%);
+            z-index: 3;
+            width: 58%;
+        }
+
+        .player-image img {
+            width: 100%;
+            height: auto;
+        }
+
+        .player-name {
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translateX(-50%) rotate(-10deg);
+            z-index: 4;
+            font-size: 21px;
+            font-weight: 900;
+            color: white;
+            white-space: nowrap;
+            text-shadow: 0.1px 0.1px 3px black;
+            text-align: left;
+            text-overflow: clip;
+            overflow: hidden;
+        }
+
+        .player-details {
+            background-color: black;
+            color: white;
+            padding: 10px;
+            font-family: 'eFootball22-sans-card';
+            width: 260px;
+            height: 390px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-top: 10px;
+            left: -10px
+        }
+
+        .player-details h3,
+        .player-details p {
+            margin: 0 0 5px;
+        }
+
+        .player-details .team-shield {
+            width: 53px;
+            height: 53px;
+            display: block;
+            margin: 0 auto 5px;
+        }
+
+        .foot-image {
+            width: 33px;
+            height: auto;
+        }
+
+        .icons-container {
+            position: absolute;
+            top: 80%; /* Adjust this value to move vertically */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px; /* Space between icons */
+        }
+
+        .icons-container img {
+            width: 20px; /* Smaller size for icons */
+            height: auto;
+        }
+
+        /* Adjustments for .card-back elements */
+        .card-back .player-info {
+            top: 40px; /* Adjust this value to move vertically */
+            left: 20px; /* Adjust this value to move horizontally */
+            z-index: 2;
+        }
+
+        .card-back .player-info h2 {
+            font-size: 35px; /* Smaller font size */
+            font-family: 'fc24-medium';
+            letter-spacing: -.05em;
+            z-index: 11;
+            color: #40351d;
+            margin-bottom: 0px; /* Space between rating and position */
+            left: 20px;
+            top: 20px;
+        }
+
+        .card-back .position {
+            font-family: 'fc24-medium';
+            font-size: 18px; /* Smaller font size */
+            margin-top: 0px; /* Adjust margin to control spacing */
+            z-index: 11;
+            color: #40351d;
+            position: relative;
+            left: 20px;
+            top: 20px;
+        }
+
+        .card-back .flag-image {
+            width: 30px;  /* Adjust this value */
+            height: 18px;  /* Adjust this value */
+        }
+
+        .card-back .team-shield,
+        .card-back .league-image {
+            width: 25px; /* Smaller size for icons */
+            height: 25px; /* Match height */
+            margin: 1px; /* Space between icons */
+        }
+
+        .card-back .player-image {
+            top: 42%; /* Adjust this value to move vertically */
+            right: 20%;
+            width: 48%; /* Adjust size */
+        }
+
+        .card-back .player-name {
+            top: 62%; /* Adjust this value to move vertically */
+            transform: translateX(-50%) rotate(0deg);
+            font-size: 18px; /* Smaller font size */
+            font-family: 'fc24-bold';
+            letter-spacing: -.025em;
+            white-space: nowrap;
+            overflow: visible;
+            text-align: center;
+            z-index: 11;
+            color: #40351d;
+            margin-bottom: 50px; /* Space between name and icons */
+        }
+    </style>
+    <script>
+        function formatMarketValue(value) {
+            if (value >= 1000000) {
+                return "€ " + (value / 1000000).toFixed(1) + " M";
+            } else if (value >= 1000) {
+                return "€ " + (value / 1000).toFixed(0) + " K";
+            } else {
+                return "€ " + value;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var marketValueElements = document.querySelectorAll(".market-value");
+            marketValueElements.forEach(function(element) {
+                var value = parseInt(element.innerText);
+                element.innerText = formatMarketValue(value);
+            });
+
+            var cardContainers = document.querySelectorAll('.card-container');
+            cardContainers.forEach(function(container) {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('flip');
+                });
+
+                var prediction = parseFloat(container.querySelector('.card-back .player-info h2').innerText);
+                var cardBack = container.querySelector('.card-back');
+
+                if (prediction <= 64) {
+                    cardBack.style.backgroundImage = "url('https://cdn.futwiz.com/assets/img/fc24/items/fc24-bronze-2.png')";
+                } else if (prediction >= 65 && prediction <= 74) {
+                    cardBack.style.backgroundImage = "url('https://cdn.futwiz.com/assets/img/fc24/items/fc24-silver-2.png')";
+                } else if (prediction >= 75) {
+                    cardBack.style.backgroundImage = "url('https://cdn.futwiz.com/assets/img/fc24/items/fc24-gold-2.png')";
+                }
+            });
+
+            document.getElementById('flip-all-button').addEventListener('click', function() {
+                cardContainers.forEach(function(container) {
+                    container.classList.toggle('flip');
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <img src="https://cdn.sportfeeds.io/sdl/images/team/crest/large/{{ predictions[0]['team_id'] }}.png" alt="Team Shield" class="img-fluid" style="width: 100px;">
+            <h1>{{ predictions[0]['team_name'] }} Squad</h1>
+        </div>
+        <div class="mt-2 text-center">
+            <button id="flip-all-button" class="btn btn-primary">Flip All Cards</button>
+        </div>
+    </div>
+    <div class="container">
+        {% for player in predictions %}
+        <div class="card">
+            <div class="card-container">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="background2"></div>
+                        <div class="player-info">
+                            <h2>{{ "%.0f" % player['prediction'] }}</h2>
+                            <div class="position">
+                                {% if player['position'] == 'Goalkeeper' %} GK
+                                {% elif player['position'] == 'Right-Back' %} RB
+                                {% elif player['position'] == 'Left-Back' %} LB
+                                {% elif player['position'] == 'Centre-Back' %} CB
+                                {% elif player['position'] == 'Right Midfield' %} RMF
+                                {% elif player['position'] == 'Left Midfield' %} LMF
+                                {% elif player['position'] == 'Central Midfield' %} CMF
+                                {% elif player['position'] == 'Defensive Midfield' %} DMF
+                                {% elif player['position'] == 'Attacking Midfield' %} AMF
+                                {% elif player['position'] == 'Right Winger' %} RWF
+                                {% elif player['position'] == 'Left Winger' %} LWF
+                                {% elif player['position'] == 'Centre-Forward' %} CF
+                                {% elif player['position'] == 'Second Striker' %} SS
+                                {% endif %}
+                            </div>
+                            <img src="https://cdn.sportfeeds.io/sdl/images/team/crest/large/{{ player['team_id'] }}.png" alt="Team Shield" class="team-shield">
+                            <img src="{{ player['flag_url'] }}" alt="Country Flag" class="flag-image">
+                        </div>
+                        <div class="player-image">
+                            <img src="{{ player['profile_img'] }}" alt="Player Image">
+                        </div>
+                        <div class="player-name">
+                            {{ player['player_name'] }}
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="player-info">
+                            <h2>{{ "%.0f" % player['prediction_sofifa'] }}</h2>
+                            <div class="position">
+                                {% if player['position'] == 'Goalkeeper' %} GK
+                                {% elif player['position'] == 'Right-Back' %} RB
+                                {% elif player['position'] == 'Left-Back' %} LB
+                                {% elif player['position'] == 'Centre-Back' %} CB
+                                {% elif player['position'] == 'Right Midfield' %} RM
+                                {% elif player['position'] == 'Left Midfield' %} LM
+                                {% elif player['position'] == 'Central Midfield' %} CM
+                                {% elif player['position'] == 'Defensive Midfield' %} CDM
+                                {% elif player['position'] == 'Attacking Midfield' %} CAM
+                                {% elif player['position'] == 'Right Winger' %} RW
+                                {% elif player['position'] == 'Left Winger' %} LW
+                                {% elif player['position'] == 'Centre-Forward' %} ST
+                                {% elif player['position'] == 'Second Striker' %} CF
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="player-image">
+                            <img src="{{ player['profile_img'] }}" alt="Player Image">
+                        </div>
+                        <div class="player-name">
+                            {{ player['player_name'] }}
+                        </div>
+                        <div class="icons-container">
+                            <img src="{{ player['flag_url'] }}" alt="Country Flag" class="flag-image">
+                            <img src="{{ league_img }}" alt="League Image" class="league-image">
+                            <img src="https://cdn.sportfeeds.io/sdl/images/team/crest/large/{{ player['team_id'] }}.png" alt="Team Shield" class="team-shield">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="player-details">
+                <h3>{{ player['team_name'] }}</h3>
+                <img src="https://cdn.sportfeeds.io/sdl/images/team/crest/large/{{ player['team_id'] }}.png" alt="Team Shield" class="team-shield">
+                <p>Position: {{ player['position'] }}</p>
+                <p>Height: {{ player['height'] }} cm</p>
+                <p>Age: {{ player['age'] }}</p>
+                <p>Foot: 
+                    {% if player['foot'] == 'right' %}
+                        <img src="/static/right_foot.png" alt="Right Foot" class="foot-image">
+                    {% else %}
+                        <img src="/static/left_foot.png" alt="Left Foot" class="foot-image">
+                    {% endif %}
+                </p>
+                <p>Market Value: <span class="market-value">{{ player['MarketValue'] }}</span></p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
