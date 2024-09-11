@@ -18,7 +18,7 @@ from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 import numpy as np
 import cpi
 from dateutil.relativedelta import relativedelta
-
+import os
 
 
 
@@ -1488,7 +1488,6 @@ def scrape_transfermarkt(url):
 
 
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 
