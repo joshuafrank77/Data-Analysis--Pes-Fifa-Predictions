@@ -74,7 +74,7 @@ def remove_background(image_url):
             img_str = base64.b64encode(img_data).decode('utf-8')
             return img_str
 
-    response = requests.get(image_url)
+    response = requests.get(image_url, headers=HEADERS)
     response.raise_for_status()
     image = Image.open(BytesIO(response.content))
     result = remove(image)
